@@ -1,0 +1,2 @@
+input_sparse,output_sparse,num_images,num_points,num_observations,mean_before,median_before,p90_before,mean_after,median_after,p90_after,time_sec,success,message
+data/human1_vggt_4/sparse,data/human1_vggt_4/sparse_self_ba_linear_smoke_ply,4,200,439,1.7079686990202254,0.9785844441387054,4.195626585551448,1.481462079306623,1.0521326634591903,3.4891294941910274,0.1720423698425293,True,`ftol` termination condition is satisfied.

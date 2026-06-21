@@ -10,10 +10,6 @@ __pycache__/
 venv/
 env/
 
-# Generated experiment data and outputs
-data/
-outputs/
-
 # Large external repos/checkpoints
 external/
 *.ckpt
