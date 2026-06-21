@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+
+# Local environments
+.venv/
+venv/
+env/
+
+# Generated experiment data and outputs
+data/
+outputs/
+
+# Large external repos/checkpoints
+external/
+*.ckpt
+*.pth
+*.pt
+
+# Windows metadata from downloaded files
+*:Zone.Identifier
