@@ -10,7 +10,7 @@ The original provided data stays in `大作业数据/`. Create a lightweight `da
 folder with symlinks:
 
 ```bash
-python scripts/setup_data.py
+python scripts/setup_data.py  
 ```
 
 Result:

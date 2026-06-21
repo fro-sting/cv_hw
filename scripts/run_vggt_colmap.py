@@ -43,6 +43,15 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Ask VGGT demo_colmap.py to run its built-in pycolmap BA. This is slower.",
     )
+    parser.add_argument(
+        "--skip_builtin_ba",
+        action="store_true",
+        help=(
+            "With --use_ba, run VGGT track prediction and COLMAP construction, "
+            "but skip demo_colmap.py's final pycolmap.bundle_adjustment call. "
+            "Use this to create an initial sparse model for scripts/run_self_ba.py."
+        ),
+    )
     parser.add_argument("--max_reproj_error", type=float, default=8.0)
     parser.add_argument("--shared_camera", action="store_true")
     parser.add_argument("--camera_type", default="SIMPLE_PINHOLE")
@@ -144,6 +153,7 @@ def remove_sparse_if_requested(scene_dir: Path, overwrite: bool) -> None:
 def run_vggt(scene_dir: Path, args: argparse.Namespace) -> None:
     sys.path.insert(0, str(VGGT_ROOT))
     from demo_colmap import demo_fn
+    import pycolmap
 
     vggt_args = argparse.Namespace(
         scene_dir=str(scene_dir),
@@ -158,7 +168,22 @@ def run_vggt(scene_dir: Path, args: argparse.Namespace) -> None:
         fine_tracking=not args.no_fine_tracking,
         conf_thres_value=args.conf_thres_value,
     )
-    demo_fn(vggt_args)
+
+    original_bundle_adjustment = pycolmap.bundle_adjustment
+    if args.skip_builtin_ba:
+        if not args.use_ba:
+            raise ValueError("--skip_builtin_ba only makes sense together with --use_ba.")
+
+        def skip_bundle_adjustment(reconstruction, options):
+            print("Skipping VGGT demo_colmap.py built-in pycolmap.bundle_adjustment.")
+            return None
+
+        pycolmap.bundle_adjustment = skip_bundle_adjustment
+
+    try:
+        demo_fn(vggt_args)
+    finally:
+        pycolmap.bundle_adjustment = original_bundle_adjustment
 
 
 def check_outputs(scene_dir: Path) -> None:
@@ -171,6 +196,21 @@ def check_outputs(scene_dir: Path) -> None:
     for name in required:
         path = sparse_dir / name
         print(f"  {path.relative_to(ROOT)}  {path.stat().st_size} bytes")
+
+    try:
+        import pycolmap
+
+        reconstruction = pycolmap.Reconstruction(str(sparse_dir))
+        track_lengths = [len(point.track.elements) for point in reconstruction.points3D.values()]
+        usable = sum(length >= 2 for length in track_lengths)
+        mean_track = sum(track_lengths) / len(track_lengths) if track_lengths else 0.0
+        print(f"  cameras: {len(reconstruction.cameras)}")
+        print(f"  images: {len(reconstruction.images)}")
+        print(f"  points3D: {len(reconstruction.points3D)}")
+        print(f"  mean_track_length: {mean_track:.3f}")
+        print(f"  points usable for BA (track_len>=2): {usable}")
+    except Exception as exc:
+        print(f"  sparse stats skipped: {exc}")
 
 
 def main() -> None:
