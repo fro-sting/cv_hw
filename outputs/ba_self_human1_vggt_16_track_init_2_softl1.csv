@@ -1,0 +1,2 @@
+input_sparse,output_sparse,num_images,num_points,num_observations,mean_before,median_before,p90_before,mean_after,median_after,p90_after,time_sec,success,message
+data/human1_vggt_16_track_init_2/sparse,data/human1_vggt_16_track_init_2/sparse_self_ba_softl1,16,3000,18929,7.753143842421118,7.939020474881597,13.67534288874736,1.7325818520197884,1.3563724818622083,3.479185979332755,5.227285146713257,True,`ftol` termination condition is satisfied.

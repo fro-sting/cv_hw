@@ -1,0 +1,2 @@
+input_sparse,output_sparse,num_images,num_points,num_observations,mean_before,median_before,p90_before,mean_after,median_after,p90_after,time_sec,success,message
+data/human1_vggt_16_track_init_2/sparse,data/human1_vggt_16_track_init_2/sparse_self_ba,16,3000,18929,7.753143842421118,7.939020474881597,13.67534288874736,7.752890334446534,7.938113943531517,13.674234372349142,2.4902164936065674,True,Both `ftol` and `xtol` termination conditions are satisfied.
