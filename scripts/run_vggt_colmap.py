@@ -154,6 +154,7 @@ def run_vggt(scene_dir: Path, args: argparse.Namespace) -> None:
     sys.path.insert(0, str(VGGT_ROOT))
     from demo_colmap import demo_fn
     import pycolmap
+    import torch
 
     vggt_args = argparse.Namespace(
         scene_dir=str(scene_dir),
@@ -181,7 +182,8 @@ def run_vggt(scene_dir: Path, args: argparse.Namespace) -> None:
         pycolmap.bundle_adjustment = skip_bundle_adjustment
 
     try:
-        demo_fn(vggt_args)
+        with torch.no_grad():
+            demo_fn(vggt_args)
     finally:
         pycolmap.bundle_adjustment = original_bundle_adjustment
 
