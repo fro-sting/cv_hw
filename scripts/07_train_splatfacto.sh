@@ -7,6 +7,7 @@ EXPERIMENT_NAME=""
 MAX_NUM_ITERATIONS=""
 COLMAP_PATH="sparse/0"
 DOWNSCALE_FACTOR="2"
+MASKS_PATH="auto"
 EXTRA_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -33,6 +34,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --downscale-factor)
       DOWNSCALE_FACTOR="$2"
+      shift 2
+      ;;
+    --masks-path)
+      MASKS_PATH="$2"
       shift 2
       ;;
     --)
@@ -73,6 +78,13 @@ CMD+=("${EXTRA_ARGS[@]}")
 CMD+=(colmap --data "$DATA_DIR" --colmap-path "$COLMAP_PATH")
 if [[ -n "$DOWNSCALE_FACTOR" ]]; then
   CMD+=(--downscale-factor "$DOWNSCALE_FACTOR")
+fi
+if [[ "$MASKS_PATH" == "auto" ]]; then
+  if [[ -d "$DATA_DIR/masks" ]]; then
+    CMD+=(--masks-path masks)
+  fi
+elif [[ -n "$MASKS_PATH" && "$MASKS_PATH" != "none" ]]; then
+  CMD+=(--masks-path "$MASKS_PATH")
 fi
 
 echo "Running:"

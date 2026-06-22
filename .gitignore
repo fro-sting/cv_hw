@@ -9,7 +9,7 @@ __pycache__/
 .venv/
 venv/
 env/
-
+outputs/
 # Large external repos/checkpoints
 external/
 *.ckpt
