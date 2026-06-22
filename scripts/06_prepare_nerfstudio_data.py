@@ -33,6 +33,16 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Also create images_2/ by downscaling images by 2 with Pillow, avoiding nerfstudio's ffmpeg step.",
     )
+    parser.add_argument(
+        "--apply_masks_to_images",
+        action="store_true",
+        help="When --mask_dir is set, write copied images with the background replaced by --background_color.",
+    )
+    parser.add_argument(
+        "--background_color",
+        default="0,0,0",
+        help="RGB background used by --apply_masks_to_images, e.g. 0,0,0 or 255,255,255.",
+    )
     parser.add_argument("--overwrite", action="store_true", help="Replace an existing output directory.")
     parser.add_argument(
         "--allow_missing_images",
@@ -152,6 +162,29 @@ def copy_masks(mask_dir: Path, output_dir: Path, copied_images: list[str], copy_
     return copied_masks
 
 
+def parse_rgb(value: str) -> tuple[int, int, int]:
+    parts = [int(part.strip()) for part in value.split(",")]
+    if len(parts) != 3 or any(part < 0 or part > 255 for part in parts):
+        raise ValueError(f"Expected RGB as r,g,b with values in [0,255], got: {value}")
+    return parts[0], parts[1], parts[2]
+
+
+def apply_masks_to_images(output_dir: Path, copied_images: list[str], background: tuple[int, int, int]) -> None:
+    image_dir = output_dir / "images"
+    mask_dir = output_dir / "masks"
+    for name in copied_images:
+        image_path = image_dir / name
+        mask_path = mask_dir / name
+        with Image.open(image_path) as image, Image.open(mask_path) as mask_image:
+            rgb = image.convert("RGB")
+            mask = mask_image.convert("L")
+            bg = Image.new("RGB", rgb.size, background)
+            bg.paste(rgb, mask=mask)
+            if image_path.is_symlink():
+                image_path.unlink()
+            bg.save(image_path)
+
+
 def copy_sparse(sparse_dir: Path, output_dir: Path) -> None:
     target = output_dir / "sparse" / "0"
     for name in SPARSE_FILES:
@@ -255,6 +288,8 @@ def main() -> None:
     copied_masks: list[str] = []
     if mask_dir is not None:
         copied_masks = copy_masks(mask_dir, output_dir, copied_images, args.copy_images)
+        if args.apply_masks_to_images:
+            apply_masks_to_images(output_dir, copied_images, parse_rgb(args.background_color))
     copy_sparse(sparse_dir, output_dir)
     if args.make_images_2:
         make_downscaled_images(output_dir, copied_images, factor=2)
