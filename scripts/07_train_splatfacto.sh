@@ -8,6 +8,7 @@ MAX_NUM_ITERATIONS=""
 COLMAP_PATH="sparse/0"
 DOWNSCALE_FACTOR="2"
 MASKS_PATH="auto"
+BACKGROUND_COLOR="black"
 EXTRA_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -38,6 +39,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --masks-path)
       MASKS_PATH="$2"
+      shift 2
+      ;;
+    --background-color)
+      BACKGROUND_COLOR="$2"
       shift 2
       ;;
     --)
@@ -73,6 +78,9 @@ if [[ -n "$EXPERIMENT_NAME" ]]; then
 fi
 if [[ -n "$MAX_NUM_ITERATIONS" ]]; then
   CMD+=(--max-num-iterations "$MAX_NUM_ITERATIONS")
+fi
+if [[ -n "$BACKGROUND_COLOR" ]]; then
+  CMD+=(--pipeline.model.background-color "$BACKGROUND_COLOR")
 fi
 CMD+=("${EXTRA_ARGS[@]}")
 CMD+=(colmap --data "$DATA_DIR" --colmap-path "$COLMAP_PATH")
