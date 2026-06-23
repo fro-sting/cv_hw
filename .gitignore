@@ -10,6 +10,7 @@ __pycache__/
 venv/
 env/
 outputs/
+gs_batch/
 # Large external repos/checkpoints
 external/
 *.ckpt
