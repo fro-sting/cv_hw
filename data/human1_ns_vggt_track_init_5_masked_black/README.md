@@ -1,7 +1,7 @@
 # Nerfstudio / 3DGS Data
 
-Source images: `/home/frosting/26spring/大作业/data/human1_vggt_16_track_init_5/images`
-Source sparse: `/home/frosting/26spring/大作业/data/human1_vggt_16_track_init_5/sparse`
+Source images: `/root/cv_hw/data/human1_vggt_16_track_init_5/images`
+Source sparse: `/root/cv_hw/data/human1_vggt_16_track_init_5/sparse`
 
 Layout:
 

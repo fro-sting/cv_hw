@@ -1,7 +1,7 @@
 # Nerfstudio / 3DGS Data
 
-Source images: `/root/cv_hw/data/human1_vggt_16_track_init_5/images`
-Source sparse: `/root/cv_hw/data/human1_vggt_16_track_init_5/sparse`
+Source images: `/root/cv_hw/data/human1_vggt_official_ba/images`
+Source sparse: `/root/cv_hw/data/human1_vggt_official_ba/sparse_self_ba_intrinsics_pruned`
 
 Layout:
 
@@ -17,6 +17,6 @@ Train example:
 
 ```bash
 bash scripts/07_train_splatfacto.sh \
-  --data data/human1_ns_vggt_track_init_5_masked \
+  --data data/human1_ns_self_ba_intrinsics_pruned_masked_black \
   --output outputs/3dgs
 ```
