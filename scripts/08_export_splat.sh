@@ -4,6 +4,7 @@ set -euo pipefail
 SEARCH_DIR=""
 CONFIG=""
 OUTPUT_DIR=""
+ARCHIVE_DIR=""
 EXTRA_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -18,6 +19,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --output)
       OUTPUT_DIR="$2"
+      shift 2
+      ;;
+    --archive-dir)
+      ARCHIVE_DIR="$2"
       shift 2
       ;;
     --)
@@ -64,4 +69,32 @@ CMD+=("${EXTRA_ARGS[@]}")
 echo "Running:"
 printf ' %q' "${CMD[@]}"
 echo
-exec "${CMD[@]}"
+
+if [[ -z "$ARCHIVE_DIR" ]]; then
+  exec "${CMD[@]}"
+fi
+
+mkdir -p "$ARCHIVE_DIR"
+{
+  printf 'Command:'
+  printf ' %q' "${CMD[@]}"
+  echo
+  echo "Config: $CONFIG"
+  echo "Output: $OUTPUT_DIR"
+  echo "Started: $(date -Is)"
+} > "$ARCHIVE_DIR/export_command.txt"
+
+set +e
+"${CMD[@]}" 2>&1 | tee "$ARCHIVE_DIR/export.log"
+status=${PIPESTATUS[0]}
+set -e
+
+echo "Finished: $(date -Is)" >> "$ARCHIVE_DIR/export_command.txt"
+echo "Exit status: $status" >> "$ARCHIVE_DIR/export_command.txt"
+
+if [[ -f "$CONFIG" ]]; then
+  cp "$CONFIG" "$ARCHIVE_DIR/export_config.yml"
+fi
+find "$OUTPUT_DIR" -name "*.ply" -type f -exec cp {} "$ARCHIVE_DIR/" \; 2>/dev/null || true
+
+exit "$status"

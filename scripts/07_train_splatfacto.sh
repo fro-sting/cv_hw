@@ -9,6 +9,7 @@ COLMAP_PATH="sparse/0"
 DOWNSCALE_FACTOR="2"
 MASKS_PATH="auto"
 BACKGROUND_COLOR="black"
+ARCHIVE_DIR=""
 EXTRA_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -43,6 +44,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --background-color)
       BACKGROUND_COLOR="$2"
+      shift 2
+      ;;
+    --archive-dir)
+      ARCHIVE_DIR="$2"
       shift 2
       ;;
     --)
@@ -98,4 +103,38 @@ fi
 echo "Running:"
 printf ' %q' "${CMD[@]}"
 echo
-exec "${CMD[@]}"
+
+if [[ -z "$ARCHIVE_DIR" ]]; then
+  exec "${CMD[@]}"
+fi
+
+mkdir -p "$ARCHIVE_DIR"
+{
+  printf 'Command:'
+  printf ' %q' "${CMD[@]}"
+  echo
+  echo "Data: $DATA_DIR"
+  echo "Output: $OUTPUT_DIR"
+  echo "Experiment: $EXPERIMENT_NAME"
+  echo "Started: $(date -Is)"
+} > "$ARCHIVE_DIR/train_command.txt"
+
+set +e
+"${CMD[@]}" 2>&1 | tee "$ARCHIVE_DIR/train.log"
+status=${PIPESTATUS[0]}
+set -e
+
+echo "Finished: $(date -Is)" >> "$ARCHIVE_DIR/train_command.txt"
+echo "Exit status: $status" >> "$ARCHIVE_DIR/train_command.txt"
+
+latest_config="$(find "$OUTPUT_DIR" -name config.yml -type f -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-)"
+if [[ -n "$latest_config" && -f "$latest_config" ]]; then
+  echo "$latest_config" > "$ARCHIVE_DIR/latest_config_path.txt"
+  cp "$latest_config" "$ARCHIVE_DIR/config.yml"
+  latest_dir="$(dirname "$latest_config")"
+  if [[ -f "$latest_dir/dataparser_transforms.json" ]]; then
+    cp "$latest_dir/dataparser_transforms.json" "$ARCHIVE_DIR/dataparser_transforms.json"
+  fi
+fi
+
+exit "$status"

@@ -71,6 +71,39 @@ Current compute strategy:
 - Important long-running commands and visual checks must be run manually by the user. Codex should prepare commands/scripts and explain expected outputs, but should not automatically launch heavy VGGT/BA/3DGS jobs unless the user explicitly asks in that turn.
 - Keep every stage debuggable: one command, one expected output folder, one manual check.
 
+Report artifact convention:
+
+- `outputs/` remains ignored by Git and can hold large temporary training results.
+- Anything needed for the final report or for moving results between the server and laptop should be copied into `report/artifacts/<experiment_name>/`.
+- When giving 3DGS training commands, prefer adding:
+
+```bash
+--archive-dir report/artifacts/<experiment_name>
+```
+
+to `scripts/07_train_splatfacto.sh`. This saves the training command, `train.log`, latest `config.yml`, and `dataparser_transforms.json`.
+
+- When giving Gaussian export commands, prefer adding:
+
+```bash
+--archive-dir report/artifacts/<experiment_name>
+```
+
+to `scripts/08_export_splat.sh`. This saves the export command, `export.log`, export config, and exported `.ply` files.
+- For BA/check_sparse/report evidence, use:
+
+```bash
+python scripts/archive_experiment.py \
+  --name <experiment_name> \
+  --sparse_dir <sparse_dir> \
+  --metrics_csv <optional_metrics_csv> \
+  --data_dir <optional_nerfstudio_data_dir> \
+  --config <optional_config_yml> \
+  --export_dir <optional_export_dir>
+```
+
+This keeps the final evidence outside ignored `outputs/`, in a folder that can be copied between machines.
+
 Current local smoke-test status:
 
 - `data/human1/images/` and `data/human2/images/` are standard RGB inputs.

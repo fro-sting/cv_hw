@@ -11,6 +11,9 @@ venv/
 env/
 outputs/
 gs_batch/
+
+# Transferable report evidence is intentionally tracked / copied between machines.
+!report/artifacts/
 # Large external repos/checkpoints
 external/
 *.ckpt
