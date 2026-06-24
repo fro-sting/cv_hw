@@ -1,0 +1,39 @@
+/root/miniconda3/envs/cv/lib/python3.10/site-packages/lightglue/lightglue.py:24: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  @torch.cuda.amp.custom_fwd(cast_inputs=torch.float32)
+/root/cv_hw/vggt/demo_colmap.py:75: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(dtype=dtype):
+/root/cv_hw/vggt/demo_colmap.py:147: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(dtype=dtype):
+Using cache found in /root/.cache/torch/hub/facebookresearch_dinov2_main
+/root/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/swiglu_ffn.py:51: UserWarning: xFormers is not available (SwiGLU)
+  warnings.warn("xFormers is not available (SwiGLU)")
+/root/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/attention.py:33: UserWarning: xFormers is not available (Attention)
+  warnings.warn("xFormers is not available (Attention)")
+/root/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/block.py:40: UserWarning: xFormers is not available (Block)
+  warnings.warn("xFormers is not available (Block)")
+Running VGGT COLMAP export for: data/scene3_vggt_official_ba
+Note: this loads the VGGT-1B checkpoint and is intended for a GPU environment.
+Arguments: {'scene_dir': '/root/cv_hw/data/scene3_vggt_official_ba', 'seed': 42, 'use_ba': True, 'max_reproj_error': 8.0, 'shared_camera': True, 'camera_type': 'SIMPLE_PINHOLE', 'vis_thresh': 0.2, 'query_frame_num': 5, 'max_query_pts': 2048, 'fine_tracking': False, 'conf_thres_value': 5.0}
+Setting seed as: 42
+Using device: cuda
+Using dtype: torch.bfloat16
+Model loaded
+Loaded 60 images from /root/cv_hw/data/scene3_vggt_official_ba/images
+Predicting tracks for query frame 0
+Predicting tracks for query frame 46
+Predicting tracks for query frame 1
+Predicting tracks for query frame 7
+Predicting tracks for query frame 17
+Predicting tracks for query frame 11
+Processing non visible frames: [10, 53, 54]
+Not enough inliers per frame, skip BA.
+Traceback (most recent call last):
+  File "/root/cv_hw/scripts/run_vggt_colmap.py", line 233, in <module>
+    main()
+  File "/root/cv_hw/scripts/run_vggt_colmap.py", line 228, in main
+    run_vggt(scene_dir, args)
+  File "/root/cv_hw/scripts/run_vggt_colmap.py", line 186, in run_vggt
+    demo_fn(vggt_args)
+  File "/root/cv_hw/vggt/demo_colmap.py", line 187, in demo_fn
+    raise ValueError("No reconstruction can be built with BA")
+ValueError: No reconstruction can be built with BA

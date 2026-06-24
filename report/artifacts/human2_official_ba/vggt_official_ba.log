@@ -1,0 +1,52 @@
+/root/miniconda3/envs/cv/lib/python3.10/site-packages/lightglue/lightglue.py:24: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  @torch.cuda.amp.custom_fwd(cast_inputs=torch.float32)
+/root/cv_hw/vggt/demo_colmap.py:75: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(dtype=dtype):
+/root/cv_hw/vggt/demo_colmap.py:147: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(dtype=dtype):
+Using cache found in /root/.cache/torch/hub/facebookresearch_dinov2_main
+/root/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/swiglu_ffn.py:51: UserWarning: xFormers is not available (SwiGLU)
+  warnings.warn("xFormers is not available (SwiGLU)")
+/root/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/attention.py:33: UserWarning: xFormers is not available (Attention)
+  warnings.warn("xFormers is not available (Attention)")
+/root/.cache/torch/hub/facebookresearch_dinov2_main/dinov2/layers/block.py:40: UserWarning: xFormers is not available (Block)
+  warnings.warn("xFormers is not available (Block)")
+I20260624 09:52:52.827577 139737448542848 misc.cc:198] 
+==============================================================================
+Global bundle adjustment
+==============================================================================
+I20260624 09:53:02.680740 139737448542848 bundle_adjustment.cc:866] 
+Bundle adjustment report:
+    Residuals : 115078
+   Parameters : 27294
+   Iterations : 21
+         Time : 9.79094 [s]
+ Initial cost : 1.98218 [px]
+   Final cost : 0.522982 [px]
+  Termination : Convergence
+
+I20260624 09:53:02.680802 139737448542848 timer.cc:91] Elapsed time: 0.164 [minutes]
+Running VGGT COLMAP export for: data/human2_vggt_official_ba
+Note: this loads the VGGT-1B checkpoint and is intended for a GPU environment.
+Arguments: {'scene_dir': '/root/cv_hw/data/human2_vggt_official_ba', 'seed': 42, 'use_ba': True, 'max_reproj_error': 8.0, 'shared_camera': True, 'camera_type': 'SIMPLE_PINHOLE', 'vis_thresh': 0.2, 'query_frame_num': 5, 'max_query_pts': 2048, 'fine_tracking': False, 'conf_thres_value': 5.0}
+Setting seed as: 42
+Using device: cuda
+Using dtype: torch.bfloat16
+Model loaded
+Loaded 16 images from /root/cv_hw/data/human2_vggt_official_ba/images
+Predicting tracks for query frame 0
+Predicting tracks for query frame 5
+Predicting tracks for query frame 2
+Predicting tracks for query frame 1
+Predicting tracks for query frame 3
+Saving reconstruction to /root/cv_hw/data/human2_vggt_official_ba/sparse
+VGGT sparse output:
+  data/human2_vggt_official_ba/sparse/cameras.bin  56 bytes
+  data/human2_vggt_official_ba/sparse/images.bin  1382304 bytes
+  data/human2_vggt_official_ba/sparse/points3D.bin  922788 bytes
+  data/human2_vggt_official_ba/sparse/points.ply  184914 bytes
+  cameras: 1
+  images: 16
+  points3D: 9068
+  mean_track_length: 6.345
+  points usable for BA (track_len>=2): 9068

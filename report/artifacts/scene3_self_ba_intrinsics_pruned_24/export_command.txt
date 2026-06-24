@@ -1,0 +1,6 @@
+Command: ns-export gaussian-splat --load-config outputs/3dgs/scene3_self_ba_intrinsics_pruned_24/splatfacto/2026-06-24_104058/config.yml --output-dir outputs/exports/scene3_self_ba_intrinsics_pruned_24_splat
+Config: outputs/3dgs/scene3_self_ba_intrinsics_pruned_24/splatfacto/2026-06-24_104058/config.yml
+Output: outputs/exports/scene3_self_ba_intrinsics_pruned_24_splat
+Started: 2026-06-24T10:59:10+08:00
+Finished: 2026-06-24T10:59:30+08:00
+Exit status: 0

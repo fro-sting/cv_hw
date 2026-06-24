@@ -1,0 +1,6 @@
+Command: ns-export gaussian-splat --load-config outputs/3dgs/human2_self_ba_intrinsics_pruned_masked_black/splatfacto/2026-06-24_100953/config.yml --output-dir outputs/exports/human2_self_ba_intrinsics_pruned_splat
+Config: outputs/3dgs/human2_self_ba_intrinsics_pruned_masked_black/splatfacto/2026-06-24_100953/config.yml
+Output: outputs/exports/human2_self_ba_intrinsics_pruned_splat
+Started: 2026-06-24T10:17:47+08:00
+Finished: 2026-06-24T10:18:01+08:00
+Exit status: 0

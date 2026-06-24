@@ -1,0 +1,1 @@
+outputs/3dgs/human2_self_ba_intrinsics_pruned_masked_black/splatfacto/2026-06-24_100953/config.yml

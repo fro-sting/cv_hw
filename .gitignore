@@ -19,6 +19,7 @@ external/
 *.ckpt
 *.pth
 *.pt
+*.ply
 
 # Windows metadata from downloaded files
 *:Zone.Identifier

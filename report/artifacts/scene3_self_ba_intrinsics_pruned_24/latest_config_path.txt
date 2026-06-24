@@ -1,0 +1,1 @@
+outputs/3dgs/scene3_self_ba_intrinsics_pruned_24/splatfacto/2026-06-24_104058/config.yml
