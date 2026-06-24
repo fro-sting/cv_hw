@@ -1,0 +1,24 @@
+/root/miniconda3/envs/cv/lib/python3.10/site-packages/lightglue/lightglue.py:24: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  @torch.cuda.amp.custom_fwd(cast_inputs=torch.float32)
+/root/cv_hw/vggt/demo_colmap.py:75: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with torch.cuda.amp.autocast(dtype=dtype):
+Running VGGT COLMAP export for: data/scene3_dense_vggt_raw_160
+Note: this loads the VGGT-1B checkpoint and is intended for a GPU environment.
+Arguments: {'scene_dir': '/root/cv_hw/data/scene3_dense_vggt_raw_160', 'seed': 42, 'use_ba': False, 'max_reproj_error': 8.0, 'shared_camera': True, 'camera_type': 'SIMPLE_PINHOLE', 'vis_thresh': 0.2, 'query_frame_num': 8, 'max_query_pts': 4096, 'fine_tracking': True, 'conf_thres_value': 5.0}
+Setting seed as: 42
+Using device: cuda
+Using dtype: torch.bfloat16
+Model loaded
+Loaded 138 images from /root/cv_hw/data/scene3_dense_vggt_raw_160/images
+Converting to COLMAP format
+Saving reconstruction to /root/cv_hw/data/scene3_dense_vggt_raw_160/sparse
+VGGT sparse output:
+  data/scene3_dense_vggt_raw_160/sparse/cameras.bin  7736 bytes
+  data/scene3_dense_vggt_raw_160/sparse/images.bin  11462 bytes
+  data/scene3_dense_vggt_raw_160/sparse/points3D.bin  8 bytes
+  data/scene3_dense_vggt_raw_160/sparse/points.ply  238 bytes
+  cameras: 138
+  images: 138
+  points3D: 0
+  mean_track_length: 0.000
+  points usable for BA (track_len>=2): 0
