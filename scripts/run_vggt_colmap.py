@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -64,6 +65,43 @@ def parse_args() -> argparse.Namespace:
         "--overwrite_sparse",
         action="store_true",
         help="Remove an existing sparse/ output directory before running.",
+    )
+    parser.add_argument(
+        "--run_self_ba",
+        action="store_true",
+        help="After VGGT export, run scripts/run_self_ba.py on the generated sparse model.",
+    )
+    parser.add_argument("--self_ba_output_name", default="sparse_self_ba", help="Output directory name under the scene.")
+    parser.add_argument("--self_ba_max_points", type=int, default=5000)
+    parser.add_argument("--self_ba_max_nfev", type=int, default=80)
+    parser.add_argument("--self_ba_loss", default="soft_l1", choices=["linear", "soft_l1", "huber", "cauchy", "arctan"])
+    parser.add_argument("--self_ba_f_scale", type=float, default=2.0)
+    parser.add_argument(
+        "--self_ba_max_initial_reproj_error_px",
+        type=float,
+        default=64.0,
+        help="Initial outlier filter passed to run_self_ba.py. Use <=0 to disable.",
+    )
+    parser.add_argument(
+        "--self_ba_prune_reproj_error_px",
+        type=float,
+        default=12.0,
+        help="Post-BA point prune threshold. Use <=0 to disable.",
+    )
+    parser.add_argument(
+        "--self_ba_optimize_shared_intrinsics",
+        action="store_true",
+        help="Pass --optimize_shared_intrinsics to run_self_ba.py.",
+    )
+    parser.add_argument(
+        "--self_ba_keep_unoptimized_points",
+        action="store_true",
+        help="Keep points outside the optimized self-BA subset.",
+    )
+    parser.add_argument(
+        "--overwrite_self_ba_output",
+        action="store_true",
+        help="Remove an existing self-BA output directory before running.",
     )
     return parser.parse_args()
 
@@ -215,6 +253,47 @@ def check_outputs(scene_dir: Path) -> None:
         print(f"  sparse stats skipped: {exc}")
 
 
+def run_self_ba(scene_dir: Path, args: argparse.Namespace) -> Path:
+    output_sparse = scene_dir / args.self_ba_output_name
+    if output_sparse.exists():
+        if not args.overwrite_self_ba_output:
+            raise FileExistsError(
+                f"{output_sparse} already exists. Use --overwrite_self_ba_output to replace it, "
+                "or choose a different --self_ba_output_name."
+            )
+        shutil.rmtree(output_sparse)
+
+    cmd = [
+        sys.executable,
+        str(ROOT / "scripts" / "run_self_ba.py"),
+        "--input_sparse",
+        str(scene_dir / "sparse"),
+        "--output_sparse",
+        str(output_sparse),
+        "--max_points",
+        str(args.self_ba_max_points),
+        "--max_nfev",
+        str(args.self_ba_max_nfev),
+        "--loss",
+        args.self_ba_loss,
+        "--f_scale",
+        str(args.self_ba_f_scale),
+    ]
+    if args.self_ba_max_initial_reproj_error_px > 0:
+        cmd.extend(["--max_initial_reproj_error_px", str(args.self_ba_max_initial_reproj_error_px)])
+    if args.self_ba_prune_reproj_error_px > 0:
+        cmd.extend(["--prune_reproj_error_px", str(args.self_ba_prune_reproj_error_px)])
+    if args.self_ba_optimize_shared_intrinsics:
+        cmd.append("--optimize_shared_intrinsics")
+    if args.self_ba_keep_unoptimized_points:
+        cmd.append("--keep_unoptimized_points")
+
+    print("Running self BA:")
+    print("  " + " ".join(cmd))
+    subprocess.run(cmd, check=True)
+    return output_sparse
+
+
 def main() -> None:
     args = parse_args()
     if not VGGT_ROOT.exists():
@@ -227,6 +306,9 @@ def main() -> None:
     print("Note: this loads the VGGT-1B checkpoint and is intended for a GPU environment.")
     run_vggt(scene_dir, args)
     check_outputs(scene_dir)
+    if args.run_self_ba:
+        output_sparse = run_self_ba(scene_dir, args)
+        print(f"Self BA sparse output: {output_sparse.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

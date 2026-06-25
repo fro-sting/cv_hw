@@ -12,6 +12,30 @@ env/
 outputs/
 gs_batch/
 
+# Track the compact data bundle needed to reproduce the current experiments,
+# while keeping future ad-hoc data outputs local by default.
+data/**
+!data/
+!data/README.md
+!data/human1/
+!data/human1/**
+!data/human2/
+!data/human2/**
+!data/scene3/
+!data/scene3/**
+!data/human1_mask_black/
+!data/human1_mask_black/**
+!data/human1_mask_blur/
+!data/human1_mask_blur/**
+!data/scene3_fixed_interval_24/
+!data/scene3_fixed_interval_24/**
+!data/scene3_uniform_24/
+!data/scene3_uniform_24/**
+!data/scene3_quality_24/
+!data/scene3_quality_24/**
+!data/scene3_quality_48/
+!data/scene3_quality_48/**
+
 # Transferable report evidence is intentionally tracked / copied between machines.
 !report/artifacts/
 # Large external repos/checkpoints

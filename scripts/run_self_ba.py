@@ -40,6 +40,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--loss", default="huber", choices=["linear", "soft_l1", "huber", "cauchy", "arctan"])
     parser.add_argument("--f_scale", type=float, default=2.0)
     parser.add_argument(
+        "--max_initial_reproj_error_px",
+        type=float,
+        default=None,
+        help="Before BA, discard observations whose initial reprojection error is above this threshold.",
+    )
+    parser.add_argument(
         "--optimize_shared_intrinsics",
         action="store_true",
         help="Also optimize one shared SIMPLE_PINHOLE/PINHOLE intrinsic parameter set.",
@@ -49,6 +55,11 @@ def parse_args() -> argparse.Namespace:
         type=float,
         default=None,
         help="After BA, delete optimized 3D points with any observation above this reprojection error.",
+    )
+    parser.add_argument(
+        "--keep_unoptimized_points",
+        action="store_true",
+        help="Keep 3D points that were not part of the optimized BA subset in the output sparse model.",
     )
     return parser.parse_args()
 
@@ -297,6 +308,45 @@ def error_stats(raw_residuals: np.ndarray) -> dict[str, float]:
     }
 
 
+def filter_observations_by_reprojection_error(
+    problem: BAProblem,
+    threshold_px: float,
+    min_track_len: int,
+) -> tuple[int, int]:
+    raw = residuals(pack(problem, problem.camera_params0, problem.points0, problem.shared_intrinsics0), problem)
+    per_obs = np.linalg.norm(raw.reshape((-1, 2)), axis=1)
+    obs_keep = per_obs <= threshold_px
+
+    kept_counts = np.bincount(
+        problem.point_indices[obs_keep],
+        minlength=len(problem.point3d_ids),
+    )
+    point_keep = kept_counts >= min_track_len
+    final_obs_keep = obs_keep & point_keep[problem.point_indices]
+
+    removed_observations = int(len(problem.observations) - np.count_nonzero(final_obs_keep))
+    removed_points = int(len(problem.point3d_ids) - np.count_nonzero(point_keep))
+    if not np.any(final_obs_keep):
+        raise RuntimeError(
+            "Initial reprojection filtering removed all observations. "
+            "Increase --max_initial_reproj_error_px or disable the filter."
+        )
+    if not np.any(point_keep):
+        raise RuntimeError(
+            "Initial reprojection filtering removed all points. "
+            "Increase --max_initial_reproj_error_px or lower --min_track_len."
+        )
+
+    remap = np.full(len(problem.point3d_ids), -1, dtype=np.int32)
+    remap[point_keep] = np.arange(np.count_nonzero(point_keep), dtype=np.int32)
+    problem.point3d_ids = [point_id for point_id, keep in zip(problem.point3d_ids, point_keep) if keep]
+    problem.points0 = problem.points0[point_keep]
+    problem.camera_indices = problem.camera_indices[final_obs_keep]
+    problem.point_indices = remap[problem.point_indices[final_obs_keep]]
+    problem.observations = problem.observations[final_obs_keep]
+    return removed_observations, removed_points
+
+
 def write_metrics(path: Path, row: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as f:
@@ -357,6 +407,20 @@ def prune_points_by_reprojection_error(
     return len(bad_point_indices)
 
 
+def delete_unoptimized_points(
+    reconstruction: pycolmap.Reconstruction,
+    optimized_point_ids: list[int],
+) -> int:
+    optimized = set(optimized_point_ids)
+    point_ids = list(reconstruction.points3D.keys())
+    removed = 0
+    for point_id in point_ids:
+        if point_id not in optimized:
+            reconstruction.delete_point3D(point_id)
+            removed += 1
+    return removed
+
+
 def main() -> None:
     args = parse_args()
     started = time.time()
@@ -367,6 +431,14 @@ def main() -> None:
         args.max_points,
         optimize_shared_intrinsics=args.optimize_shared_intrinsics,
     )
+    initial_removed_observations = 0
+    initial_removed_points = 0
+    if args.max_initial_reproj_error_px is not None:
+        initial_removed_observations, initial_removed_points = filter_observations_by_reprojection_error(
+            problem,
+            threshold_px=args.max_initial_reproj_error_px,
+            min_track_len=args.min_track_len,
+        )
 
     x0 = pack(problem, problem.camera_params0, problem.points0, problem.shared_intrinsics0)
     before = error_stats(residuals(x0, problem))
@@ -375,6 +447,10 @@ def main() -> None:
     print(f"images: {len(problem.image_ids)}")
     print(f"points: {len(problem.point3d_ids)}")
     print(f"observations: {len(problem.observations)}")
+    if args.max_initial_reproj_error_px is not None:
+        print(f"max_initial_reproj_error_px: {args.max_initial_reproj_error_px:.6f}")
+        print(f"initial_removed_observations: {initial_removed_observations}")
+        print(f"initial_removed_points: {initial_removed_points}")
     print(f"optimize_shared_intrinsics: {problem.shared_intrinsics0 is not None}")
     if problem.shared_intrinsics0 is not None:
         print(f"shared_camera_model: {problem.shared_camera_model}")
@@ -416,6 +492,9 @@ def main() -> None:
             after_residuals,
             args.prune_reproj_error_px,
         )
+    removed_unoptimized_points = 0
+    if not args.keep_unoptimized_points:
+        removed_unoptimized_points = delete_unoptimized_points(reconstruction, problem.point3d_ids)
 
     output_sparse = Path(args.output_sparse)
     output_sparse.mkdir(parents=True, exist_ok=True)
@@ -431,6 +510,9 @@ def main() -> None:
     if args.prune_reproj_error_px is not None:
         print(f"prune_reproj_error_px: {args.prune_reproj_error_px:.6f}")
         print(f"pruned_points: {pruned_points}")
+    print(f"keep_unoptimized_points: {args.keep_unoptimized_points}")
+    if not args.keep_unoptimized_points:
+        print(f"removed_unoptimized_points: {removed_unoptimized_points}")
     print(f"success: {result.success}")
     print(f"message: {result.message}")
     print(f"time_sec: {elapsed:.3f}")
@@ -445,6 +527,11 @@ def main() -> None:
                 "num_images": len(problem.image_ids),
                 "num_points": len(problem.point3d_ids),
                 "num_observations": len(problem.observations),
+                "max_initial_reproj_error_px": (
+                    args.max_initial_reproj_error_px if args.max_initial_reproj_error_px is not None else ""
+                ),
+                "initial_removed_observations": initial_removed_observations,
+                "initial_removed_points": initial_removed_points,
                 "optimize_shared_intrinsics": problem.shared_intrinsics0 is not None,
                 "shared_camera_model": problem.shared_camera_model,
                 "shared_intrinsics_before": (
@@ -459,6 +546,8 @@ def main() -> None:
                 "p90_after": after["p90"],
                 "prune_reproj_error_px": args.prune_reproj_error_px if args.prune_reproj_error_px is not None else "",
                 "pruned_points": pruned_points,
+                "keep_unoptimized_points": args.keep_unoptimized_points,
+                "removed_unoptimized_points": removed_unoptimized_points,
                 "time_sec": elapsed,
                 "success": result.success,
                 "message": result.message,
