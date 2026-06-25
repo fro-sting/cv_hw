@@ -35,6 +35,8 @@ data/**
 !data/scene3_quality_24/**
 !data/scene3_quality_48/
 !data/scene3_quality_48/**
+!data/scene3_quality_96/
+!data/scene3_quality_96/**
 
 # Transferable report evidence is intentionally tracked / copied between machines.
 !report/artifacts/

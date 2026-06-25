@@ -37,6 +37,7 @@ prepare_views() {
   local max_frames="$2"
   local strategy="$3"
   local fixed_interval="${4:-10}"
+  local fps="${5:-2}"
   local output_scene="data/${SCENE}_${name}"
   mapfile -t source < <(source_args)
 
@@ -46,6 +47,7 @@ prepare_views() {
     --max_frames "${max_frames}" \
     --strategy "${strategy}" \
     --fixed_interval "${fixed_interval}" \
+    --fps "${fps}" \
     --csv "${output_scene}/view_scores.csv" \
     --figure "${output_scene}/view_scores.png"
 }
@@ -71,11 +73,13 @@ prepare_views fixed_interval_24 24 fixed_interval 2
 prepare_views uniform_24 24 uniform
 prepare_views quality_24 24 quality
 prepare_views quality_48 48 quality
+prepare_views quality_96 96 quality 10 3
 
 run_vggt fixed_interval_24
 run_vggt uniform_24
 run_vggt quality_24
 run_vggt quality_48
+run_vggt quality_96
 
 if [[ "${EXECUTE}" != "1" ]]; then
   echo "Dry run only. Re-run with: bash scripts/run_scene3_vggt_ablation.sh ${SCENE} --execute"

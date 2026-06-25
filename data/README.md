@@ -22,7 +22,8 @@ data/
 ├── scene3_fixed_interval_24/
 ├── scene3_uniform_24/
 ├── scene3_quality_24/
-└── scene3_quality_48/
+├── scene3_quality_48/
+└── scene3_quality_96/
 ```
 
 For VGGT, use each `images/` directory for human data. For scene3, the

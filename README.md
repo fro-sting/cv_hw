@@ -135,8 +135,8 @@ bash scripts/run_scene3_vggt_ablation.sh scene3
 bash scripts/run_scene3_vggt_ablation.sh scene3 --execute
 ```
 
-This compares `fixed_interval_24`, `uniform_24`, `quality_24`, and `quality_48`
-with VGGT `--use_ba`, then writes sparse metrics to
+This compares `fixed_interval_24`, `uniform_24`, `quality_24`, `quality_48`,
+and `quality_96` with VGGT `--use_ba`, then writes sparse metrics to
 `outputs/tables/scene3_vggt_ablation.csv`.
 
 For both tracks, compare the sparse and BA-level metrics first:
