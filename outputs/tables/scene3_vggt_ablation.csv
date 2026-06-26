@@ -1,0 +1,6 @@
+sparse_dir,cameras,images,points3D,mean_track_length,median_track_length,max_track_length,track_ge_2,track_ge_3,track_ge_5,ply_points
+data/scene3_fixed_interval_24/sparse,1,24,34498,7.046351,6.000000,22,34498,31399,24980,39707
+data/scene3_fixed_interval_24/sparse,1,24,34498,7.046351,6.000000,22,34498,31399,24980,39707
+data/scene3_uniform_24/sparse,1,24,11576,4.456375,3.000000,16,11576,8574,3751,18527
+data/scene3_quality_24/sparse,1,24,15960,4.710902,4.000000,16,15960,12483,6402,21186
+data/scene3_fixed_interval_24/sparse_self_ba_intrinsics_pruned,1,24,11641,6.772958,6.000000,22,11641,10907,8284,11641

@@ -1,0 +1,6 @@
+sparse_dir,cameras,images,points3D,mean_track_length,median_track_length,max_track_length,track_ge_2,track_ge_3,track_ge_5,ply_points
+data/human1_vggt_original_q8/sparse,1,16,30953,4.379123,4.000000,15,30953,24176,13018,32493
+data/human1_vggt_original_q16/sparse,1,16,61770,4.478323,4.000000,15,61770,51115,26329,64550
+data/human1_vggt_mask_black_q16/sparse,1,16,61633,5.767235,6.000000,15,61633,59031,43997,63004
+data/human1_vggt_mask_blur_q16/sparse,1,16,62839,4.732045,4.000000,15,62839,53591,30627,65496
+data/human1_vggt_mask_blur_q16_no_fine/sparse,1,16,62884,4.908307,5.000000,15,62884,54822,33037,65496
