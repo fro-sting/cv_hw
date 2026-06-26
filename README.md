@@ -136,7 +136,9 @@ bash scripts/run_scene3_vggt_ablation.sh scene3 --execute
 ```
 
 This compares `fixed_interval_24`, `uniform_24`, `quality_24`, `quality_48`,
-and `quality_96` with VGGT `--use_ba`, then writes sparse metrics to
+and `quality_96`. The wrapper uses VGGT's BA track-building path, skips the
+final pycolmap BA, then runs the project self-implemented BA and writes sparse
+metrics from `sparse_self_ba_intrinsics_pruned/` to
 `outputs/tables/scene3_vggt_ablation.csv`.
 
 For both tracks, compare the sparse and BA-level metrics first:
