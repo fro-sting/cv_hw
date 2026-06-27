@@ -25,12 +25,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--csv", help="Per-frame score CSV. Defaults to output_dir/view_scores.csv.")
     parser.add_argument("--figure", help="Score figure path. Defaults to output_dir/view_scores.png.")
     parser.add_argument("--max_frames", type=int, default=24, help="Maximum selected frames.")
-    parser.add_argument("--strategy", choices=["quality", "uniform", "fixed_interval"], default="quality")
+    parser.add_argument(
+        "--strategy",
+        choices=["quality", "quality_segmented", "uniform", "fixed_interval"],
+        default="quality",
+    )
     parser.add_argument("--fixed_interval", type=int, default=10, help="Frame step for fixed_interval strategy.")
     parser.add_argument("--fps", type=float, default=2.0, help="Sampling FPS when --video is used.")
     parser.add_argument("--resize_long_edge", type=int, default=1600, help="Resize selected output images.")
     parser.add_argument("--hist_bins", type=int, default=32)
     parser.add_argument("--min_hist_diff", type=float, default=0.08, help="Minimum histogram distance between selected neighbors.")
+    parser.add_argument(
+        "--min_gap_frames",
+        type=int,
+        default=0,
+        help="Minimum frame-index gap for quality_segmented selections. Use 0 to disable.",
+    )
     parser.add_argument("--quality_weight", type=float, default=1.0)
     parser.add_argument("--diff_weight", type=float, default=0.35)
     return parser.parse_args()
@@ -104,6 +114,32 @@ def uniform_indices(total: int, count: int) -> list[int]:
     return sorted({round(i * (total - 1) / (count - 1)) for i in range(count)})
 
 
+def quality_segmented_indices(
+    total: int,
+    count: int,
+    scores: list[dict[str, float]],
+    min_gap_frames: int,
+) -> list[int]:
+    if count >= total:
+        return list(range(total))
+    selected: list[int] = []
+    min_gap_frames = max(0, min_gap_frames)
+    for segment_idx in range(count):
+        start = round(segment_idx * total / count)
+        end = round((segment_idx + 1) * total / count)
+        if end <= start:
+            end = min(total, start + 1)
+        segment = sorted(range(start, end), key=lambda idx: scores[idx]["combined_score"], reverse=True)
+        chosen = segment[0]
+        if min_gap_frames > 0:
+            for idx in segment:
+                if all(abs(idx - other) >= min_gap_frames for other in selected):
+                    chosen = idx
+                    break
+        selected.append(chosen)
+    return sorted(set(selected))
+
+
 def select_indices(args: argparse.Namespace, scores: list[dict[str, float]]) -> list[int]:
     total = len(scores)
     count = min(args.max_frames, total)
@@ -112,6 +148,8 @@ def select_indices(args: argparse.Namespace, scores: list[dict[str, float]]) -> 
     if args.strategy == "fixed_interval":
         indices = list(range(0, total, max(1, args.fixed_interval)))
         return indices[:count]
+    if args.strategy == "quality_segmented":
+        return quality_segmented_indices(total, count, scores, args.min_gap_frames)
 
     ranked = sorted(range(total), key=lambda idx: scores[idx]["combined_score"], reverse=True)
     selected: list[int] = []

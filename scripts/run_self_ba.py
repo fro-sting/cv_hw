@@ -557,3 +557,23 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+# # Project 3D points into the current camera view.
+# projected, valid = project(obs_points, camera_params[camera_idx], intrinsics[camera_idx])
+
+# # Reprojection error: predicted pixel - observed pixel.
+# diff = projected - problem.observations[obs_mask]
+
+# # Penalize invalid projections, e.g. points behind the camera.
+# diff[~valid] = 1e3
+
+# # Collect residuals from all cameras and all observed 3D points.
+# residual[obs_mask] = diff
+
+# # Optimize camera poses and 3D points by minimizing reprojection errors.
+# result = least_squares(
+#     residuals, x0, args=(problem,),
+#     jac_sparsity=jacobian_sparsity(problem),
+#     loss=args.loss, f_scale=args.f_scale,
+# )

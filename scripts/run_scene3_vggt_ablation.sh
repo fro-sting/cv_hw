@@ -48,6 +48,7 @@ prepare_views() {
     --strategy "${strategy}" \
     --fixed_interval "${fixed_interval}" \
     --fps "${fps}" \
+    --min_gap_frames 10 \
     --csv "${output_scene}/view_scores.csv" \
     --figure "${output_scene}/view_scores.png"
 }
@@ -88,9 +89,9 @@ run_cmd mkdir -p outputs/tables
 
 prepare_views fixed_interval_24 24 fixed_interval 2
 prepare_views uniform_24 24 uniform
-prepare_views quality_24 24 quality
-prepare_views quality_48 48 quality
-prepare_views quality_96 96 quality 10 3
+prepare_views quality_24 24 quality_segmented
+prepare_views quality_48 48 quality_segmented
+prepare_views quality_96 96 quality_segmented 10 3
 
 run_vggt fixed_interval_24 5 12000
 run_vggt uniform_24 5 12000
