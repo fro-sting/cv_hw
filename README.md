@@ -154,3 +154,31 @@ python scripts/eval_sparse_mask_consistency.py \
 ```
 
 Only run 3DGS for the best sparse configuration from each track.
+
+## 5. Scene3 3DGS Camera Replay
+
+After training scene3 with `scripts/07_train_splatfacto.sh`, replay the trained
+Gaussian model from the same sampled camera poses that entered VGGT/3DGS:
+
+```bash
+python scripts/render_scene3_camera_replay.py \
+  --sparse_dir data/scene3_quality_24/sparse_self_ba_intrinsics_pruned \
+  --dataparser_transforms report/artifacts/scene3_self_ba_intrinsics_pruned_24/dataparser_transforms.json \
+  --camera_path outputs/scene3_camera_replay/camera_path.json
+```
+
+Render the replay video in the nerfstudio environment:
+
+```bash
+python scripts/render_scene3_camera_replay.py \
+  --sparse_dir data/scene3_quality_24/sparse_self_ba_intrinsics_pruned \
+  --dataparser_transforms report/artifacts/scene3_self_ba_intrinsics_pruned_24/dataparser_transforms.json \
+  --config report/artifacts/scene3_self_ba_intrinsics_pruned_24/config.yml \
+  --camera_path outputs/scene3_camera_replay/camera_path.json \
+  --output_video outputs/scene3_camera_replay/replay.mp4 \
+  --fps 12 \
+  --render
+```
+
+The resulting `replay.mp4` follows the original sampled frame order, so it can
+be compared directly with the source video or the selected keyframes.
