@@ -91,7 +91,19 @@ def parse_args() -> argparse.Namespace:
         "--max_frames",
         type=int,
         default=0,
-        help="Use only the first N poses after sorting by image name; 0 means all poses.",
+        help="Use only the first N poses after optional stride sampling; 0 means all poses.",
+    )
+    parser.add_argument(
+        "--frame_stride",
+        type=int,
+        default=1,
+        help="Keep every Nth pose after sorting by image name. Use 4 to replay 24 views from a 96-view sparse model.",
+    )
+    parser.add_argument(
+        "--frame_offset",
+        type=int,
+        default=0,
+        help="Start offset for --frame_stride, e.g. 0 keeps frames 0,4,8,... when --frame_stride 4.",
     )
     parser.add_argument(
         "--no_ns_transform",
@@ -294,6 +306,11 @@ def main() -> None:
 
     cameras = read_cameras_binary(sparse_dir / "cameras.bin")
     images = read_images_binary(sparse_dir / "images.bin")
+    if args.frame_stride < 1:
+        raise ValueError("--frame_stride must be >= 1")
+    if args.frame_offset < 0:
+        raise ValueError("--frame_offset must be >= 0")
+    images = images[args.frame_offset :: args.frame_stride]
     if args.max_frames > 0:
         images = images[: args.max_frames]
 
@@ -308,6 +325,8 @@ def main() -> None:
 
     print(f"sparse_dir: {display_path(sparse_dir)}")
     print(f"poses: {len(images)}")
+    print(f"frame_stride: {args.frame_stride}")
+    print(f"frame_offset: {args.frame_offset}")
     print(f"resolution: {path_json['render_width']}x{path_json['render_height']}")
     print(f"camera_path: {display_path(camera_path)}")
 
