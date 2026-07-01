@@ -49,14 +49,6 @@ data/human2/masks
 data/scene3/source_video.mp4
 ```
 
-## Quick Check
-
-Use this before running the full VGGT model:
-
-```bash
-python scripts/run_vggt_smoke.py --scene_dir data/human1 --max_images 4 --preprocess
-```
-
 ## Main Pipeline
 
 Run VGGT COLMAP export and the self-implemented BA pass:
@@ -120,7 +112,7 @@ python scripts/run_vggt_colmap.py \
 Select quality-aware keyframes from the scene video:
 
 ```bash
-python scripts/10_filter_views.py \
+python scripts/filter_views.py \
   --video data/scene3/source_video.mp4 \
   --output_dir data/scene3_quality_24 \
   --max_frames 24 \
@@ -151,7 +143,7 @@ python scripts/run_vggt_colmap.py \
 Prepare Nerfstudio data:
 
 ```bash
-python scripts/06_prepare_nerfstudio_data.py \
+python scripts/prepare_nerfstudio_data.py \
   --image_dir data/human1/images \
   --mask_dir data/human1/masks \
   --sparse_dir data/human1_vggt_self_ba/sparse_self_ba \
@@ -165,8 +157,8 @@ python scripts/06_prepare_nerfstudio_data.py \
 Train and export:
 
 ```bash
-bash scripts/07_train_splatfacto.sh --data data/human1_ns --experiment-name human1 --max-num-iterations 30000
-bash scripts/08_export_splat.sh --search-dir outputs/3dgs/human1 --output gs_batch/human1
+bash scripts/train_splatfacto.sh --data data/human1_ns --experiment-name human1 --max-num-iterations 30000
+bash scripts/export_splat.sh --search-dir outputs/3dgs/human1 --output gs_batch/human1
 ```
 
 ## Repository Layout

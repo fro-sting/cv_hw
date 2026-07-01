@@ -5,5 +5,3 @@ matplotlib
 scipy
 pycolmap==3.10.0
 trimesh
-open3d
-tqdm

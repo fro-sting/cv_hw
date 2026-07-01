@@ -55,8 +55,8 @@ data/
     └── source_video.mp4
 ```
 
-For VGGT, use each `images/` directory for human data. For scene3, extract
-frames from `source_video.mp4` into `data/scene3/images/` in the next stage.
+For VGGT, use each `images/` directory for human data. For scene3, use
+`scripts/filter_views.py` to sample keyframes from `source_video.mp4`.
 """
     (data_root / "README.md").write_text(text, encoding="utf-8")
 

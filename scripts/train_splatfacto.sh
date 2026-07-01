@@ -63,7 +63,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$DATA_DIR" ]]; then
-  echo "Usage: bash scripts/07_train_splatfacto.sh --data DATA_DIR [--output outputs/3dgs] [--experiment-name NAME] [--max-num-iterations N] [-- extra ns-train args]" >&2
+  echo "Usage: bash scripts/train_splatfacto.sh --data DATA_DIR [--output outputs/3dgs] [--experiment-name NAME] [--max-num-iterations N] [-- extra ns-train args]" >&2
   exit 2
 fi
 

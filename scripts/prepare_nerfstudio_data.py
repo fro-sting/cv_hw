@@ -256,7 +256,7 @@ Prepared masks: {len(copied_masks)}
 Train example:
 
 ```bash
-bash scripts/07_train_splatfacto.sh \\
+bash scripts/train_splatfacto.sh \\
   --data {output_dir.relative_to(ROOT)} \\
   --output outputs/3dgs
 ```

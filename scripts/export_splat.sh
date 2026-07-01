@@ -38,7 +38,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$CONFIG" && -z "$SEARCH_DIR" ]]; then
-  echo "Usage: bash scripts/08_export_splat.sh (--config CONFIG.yml | --search-dir outputs/3dgs/EXP) --output OUTPUT_DIR [-- extra ns-export args]" >&2
+  echo "Usage: bash scripts/export_splat.sh (--config CONFIG.yml | --search-dir outputs/3dgs/EXP) --output OUTPUT_DIR [-- extra ns-export args]" >&2
   exit 2
 fi
 
