@@ -1,2 +1,0 @@
-sparse_dir,cameras,images,points3D,mean_track_length,median_track_length,max_track_length,track_ge_2,track_ge_3,track_ge_5,ply_points
-data/human1_vggt_mask_black_q16_self_ba/sparse_self_ba,1,16,11616,8.453082,8.000000,14,11616,11616,11616,11616

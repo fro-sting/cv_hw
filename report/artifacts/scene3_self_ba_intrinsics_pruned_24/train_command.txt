@@ -1,7 +1,0 @@
-Command: ns-train splatfacto --output-dir outputs/3dgs --experiment-name scene3_self_ba_intrinsics_pruned_24 --max-num-iterations 30000 --pipeline.model.background-color black colmap --data data/scene3_ns_self_ba_intrinsics_pruned_24 --colmap-path sparse/0 --downscale-factor 2
-Data: data/scene3_ns_self_ba_intrinsics_pruned_24
-Output: outputs/3dgs
-Experiment: scene3_self_ba_intrinsics_pruned_24
-Started: 2026-06-24T10:40:52+08:00
-Finished: 2026-06-24T10:58:55+08:00
-Exit status: 1

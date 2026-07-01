@@ -1,7 +1,0 @@
-Command: ns-train splatfacto --output-dir outputs/3dgs --experiment-name human2_self_ba_intrinsics_pruned_masked_black --max-num-iterations 30000 --pipeline.model.background-color black colmap --data data/human2_ns_self_ba_intrinsics_pruned_masked_black --colmap-path sparse/0 --downscale-factor 2 --masks-path masks
-Data: data/human2_ns_self_ba_intrinsics_pruned_masked_black
-Output: outputs/3dgs
-Experiment: human2_self_ba_intrinsics_pruned_masked_black
-Started: 2026-06-24T10:09:48+08:00
-Finished: 2026-06-24T10:17:33+08:00
-Exit status: 1

@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/root/cv_hw/scripts/check_sparse.py", line 7, in <module>
-    import pycolmap
-ModuleNotFoundError: No module named 'pycolmap'

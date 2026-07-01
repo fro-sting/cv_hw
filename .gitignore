@@ -1,51 +1,41 @@
+# Python caches
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.DS_Store
 
 # Local environments
 .venv/
 venv/
 env/
-outputs/
-gs_batch/
 
-# Track the compact data bundle needed to reproduce the current experiments,
-# while keeping future ad-hoc data outputs local by default.
+# OS/editor metadata
+.DS_Store
+*:Zone.Identifier
+
+# Course data and generated experiment artifacts
 data/**
 !data/
 !data/README.md
-!data/human1/
-!data/human1/**
-!data/human2/
-!data/human2/**
-!data/scene3/
-!data/scene3/**
-!data/human1_mask_black/
-!data/human1_mask_black/**
-!data/human1_mask_blur/
-!data/human1_mask_blur/**
-!data/scene3_fixed_interval_24/
-!data/scene3_fixed_interval_24/**
-!data/scene3_uniform_24/
-!data/scene3_uniform_24/**
-!data/scene3_quality_24/
-!data/scene3_quality_24/**
-!data/scene3_quality_48/
-!data/scene3_quality_48/**
-!data/scene3_quality_96/
-!data/scene3_quality_96/**
+大作业数据/
+outputs/
+report/
+gs_batch/
 
-# Transferable report evidence is intentionally tracked / copied between machines.
-!report/artifacts/
-# Large external repos/checkpoints
+# Slides and local notes
+*.pptx
+codex.md
+init.md
+
+# Large model/checkpoint/point-cloud artifacts
 external/
 *.ckpt
 *.pth
 *.pt
 *.ply
 
-# Windows metadata from downloaded files
-*:Zone.Identifier
+# Nerfstudio / training artifacts
+wandb/
+lightning_logs/
+logs/

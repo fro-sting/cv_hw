@@ -1,6 +1,0 @@
-sparse_dir,image_dir,mask_dir,points3D,tracked_observations,foreground_point_ratio,foreground_observation_ratio,background_dominated_points,mask_dilate
-data/human1_vggt_original_q8/sparse,data/human1_vggt_original_q8/images,data/human1/masks,30953,135547,0.998288,0.997979,53,3
-data/human1_vggt_original_q16/sparse,data/human1_vggt_original_q16/images,data/human1/masks,61770,276626,0.998154,0.997762,114,3
-data/human1_vggt_mask_black_q16/sparse,data/human1_vggt_mask_black_q16/images,data/human1/masks,61633,355452,0.998718,0.997640,79,3
-data/human1_vggt_mask_blur_q16/sparse,data/human1_vggt_mask_blur_q16/images,data/human1/masks,62839,297357,0.996913,0.994791,194,3
-data/human1_vggt_mask_blur_q16_no_fine/sparse,data/human1_vggt_mask_blur_q16_no_fine/images,data/human1/masks,62884,308654,0.996454,0.992795,223,3

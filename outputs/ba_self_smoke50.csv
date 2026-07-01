@@ -1,2 +1,0 @@
-input_sparse,output_sparse,num_images,num_points,num_observations,mean_before,median_before,p90_before,mean_after,median_after,p90_after,time_sec,success,message
-data/human1_vggt_4/sparse,data/human1_vggt_4/sparse_self_ba_smoke50,4,200,439,1.7079686990202254,0.9785844441387054,4.195626585551448,1.709491815315931,0.9785844441373391,4.195626585558701,0.11300444602966309,True,Both `ftol` and `xtol` termination conditions are satisfied.

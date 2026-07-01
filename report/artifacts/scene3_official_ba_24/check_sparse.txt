@@ -1,7 +1,0 @@
-sparse_dir: data/scene3_vggt_official_ba_24/sparse
-cameras: 1
-images: 24
-points3D: 12902
-mean_track_length: 6.731
-points.ply: 15332 points
-status: ok

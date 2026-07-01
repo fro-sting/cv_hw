@@ -1,61 +1,68 @@
 # CV Final Project
 
-This repo is for the VGGT + Bundle Adjustment + 3D Gaussian Splatting final project.
+VGGT + self bundle adjustment + 3D Gaussian Splatting pipeline for the computer vision final project.
 
-Current stage: keep the dataset layout simple and debuggable.
+The GitHub repository keeps only code, documentation, and the `vggt` submodule pointer. Course data, generated reconstructions, Nerfstudio outputs, logs, point clouds, and slides are local artifacts and are ignored by default.
 
-## 1. Prepare Data Entrypoints
+## Environment
 
-The original provided data stays in `大作业数据/`. Create a lightweight `data/`
-folder with symlinks:
+Python 3.10 is recommended.
 
 ```bash
-python scripts/setup_data.py  
+git submodule update --init --recursive
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -r vggt/requirements.txt
 ```
 
-Result:
+Optional 3DGS training/export requires Nerfstudio with a working CUDA `gsplat` build:
+
+```bash
+pip install nerfstudio
+```
+
+## Data
+
+Put the provided course data in this layout:
 
 ```text
-data/human1/images/        # rgb_*.png links
-data/human1/masks/         # msk_*.png links
-data/human2/images/        # rgb_*.png links
-data/human2/masks/         # msk_*.png links
+大作业数据/
+├── 数据1-人体/
+├── 数据2-人体/
+└── 数据3-场景.mp4
+```
+
+Create the standard project data entry points:
+
+```bash
+python scripts/setup_data.py
+```
+
+This creates:
+
+```text
+data/human1/images
+data/human1/masks
+data/human2/images
+data/human2/masks
 data/scene3/source_video.mp4
 ```
 
-## 2. Dataset Roles
+## Quick Check
 
-- `human1`: RGB multi-view human images plus masks.
-- `human2`: RGB multi-view human images plus masks.
-- `scene3`: scene video; extract frames later before running VGGT.
-
-## 3. Lightweight VGGT Smoke Test
-
-On a CPU-only or low-memory machine, first run the smoke test. It checks the
-data layout, imports VGGT, optionally runs preprocessing, and can instantiate
-the model with random weights without downloading the 1B checkpoint:
+Use this before running the full VGGT model:
 
 ```bash
-conda run -n vggt python scripts/run_vggt_smoke.py \
-  --scene_dir data/human1_vggt_test \
-  --preprocess \
-  --init_model
+python scripts/run_vggt_smoke.py --scene_dir data/human1 --max_images 4 --preprocess
 ```
 
-The full VGGT COLMAP export is still much heavier because it downloads and runs
-the pretrained 1B model:
+## Main Pipeline
+
+Run VGGT COLMAP export and the self-implemented BA pass:
 
 ```bash
-conda run -n vggt python vggt/demo_colmap.py --scene_dir data/human1_vggt_test
-```
-
-## 4. VGGT + Self BA + 3DGS Prep
-
-For better 3DGS initialization, export VGGT with tracks, skip VGGT's final
-pycolmap BA, and run the project self BA as a cleanup pass:
-
-```bash
-conda run -n vggt python scripts/run_vggt_colmap.py \
+python scripts/run_vggt_colmap.py \
   --scene_dir data/human1 \
   --output_scene_dir data/human1_vggt_self_ba \
   --max_images 16 \
@@ -63,122 +70,113 @@ conda run -n vggt python scripts/run_vggt_colmap.py \
   --skip_builtin_ba \
   --shared_camera \
   --run_self_ba \
-  --self_ba_max_points 5000 \
+  --self_ba_output_name sparse_self_ba \
+  --self_ba_max_points 12000 \
+  --self_ba_max_nfev 120 \
   --self_ba_max_initial_reproj_error_px 64 \
-  --self_ba_prune_reproj_error_px 12
+  --self_ba_prune_reproj_error_px 12 \
+  --self_ba_optimize_shared_intrinsics
 ```
 
-This writes the VGGT initialization to `sparse/` and the optimized, pruned
-self-BA model to `sparse_self_ba/`. By default the self-BA output keeps only the
-3D points that were actually optimized, so `points.ply` is less likely to carry
-unoptimized noisy points into later visualization or splat initialization. Use
-`--self_ba_keep_unoptimized_points` if you need the old behavior.
-
-Then prepare a nerfstudio-style data folder. For human scenes, masks can be
-copied and optionally applied as a black background:
+Check sparse reconstruction metrics:
 
 ```bash
-conda run -n vggt python scripts/06_prepare_nerfstudio_data.py \
-  --image_dir data/human1_vggt_self_ba/images \
-  --mask_dir data/human1/masks \
-  --sparse_dir data/human1_vggt_self_ba/sparse_self_ba \
-  --output_dir data/human1_ns_self_ba \
-  --make_images_2 \
-  --apply_masks_to_images \
-  --background_color 0,0,0
+python scripts/check_sparse.py data/human1_vggt_self_ba/sparse_self_ba
 ```
 
-## VGGT Improvement Experiments
+## Masked Human Experiment
 
-This project now separates the VGGT improvement study into two tracks:
-
-- **Human foreground-aware VGGT ablation**: the human subject already occupies
-  most of the views, so the main variable is not cropping. Use the provided
-  masks as foreground-aware inputs and compare VGGT parameters such as query
-  frame count, fine tracking, and max query points.
-- **Indoor video quality-aware keyframe selection**: `scene3` is a video
-  reconstruction task, so the main variable is which frames enter VGGT. Compare
-  fixed interval, uniform, and quality-aware keyframes before spending time on
-  dense reconstruction.
-
-Human mask input preparation:
+Create foreground-aware images:
 
 ```bash
 python scripts/make_masked_scene.py \
   --image_dir data/human1/images \
   --mask_dir data/human1/masks \
-  --output_scene_dir data/human1_mask_blur \
-  --mode blur
+  --output_scene_dir data/human1_mask_black \
+  --mode black
 ```
 
-Human VGGT ablation commands are printed by default:
+Then rerun the main pipeline with:
 
 ```bash
-bash scripts/run_human_vggt_ablation.sh human1
+python scripts/run_vggt_colmap.py \
+  --scene_dir data/human1_mask_black \
+  --output_scene_dir data/human1_mask_black_vggt_self_ba \
+  --max_images 16 \
+  --use_ba \
+  --skip_builtin_ba \
+  --shared_camera \
+  --run_self_ba \
+  --self_ba_output_name sparse_self_ba \
+  --self_ba_max_points 12000 \
+  --self_ba_max_nfev 120 \
+  --self_ba_max_initial_reproj_error_px 64 \
+  --self_ba_prune_reproj_error_px 12 \
+  --self_ba_optimize_shared_intrinsics
 ```
 
-Run them for real with:
+## Scene Video Experiment
+
+Select quality-aware keyframes from the scene video:
 
 ```bash
-bash scripts/run_human_vggt_ablation.sh human1 --execute
+python scripts/10_filter_views.py \
+  --video data/scene3/source_video.mp4 \
+  --output_dir data/scene3_quality_24 \
+  --max_frames 24 \
+  --strategy quality_segmented \
+  --fps 2
 ```
 
-The human ablation writes sparse metrics to
-`outputs/tables/human_vggt_ablation.csv` and foreground consistency metrics to
-`outputs/tables/human_vggt_mask_consistency.csv`.
-
-Indoor keyframe selection for `scene3` is handled by `scripts/10_filter_views.py`
-and wrapped by:
+Run the main pipeline on the selected frames:
 
 ```bash
-bash scripts/run_scene3_vggt_ablation.sh scene3
-bash scripts/run_scene3_vggt_ablation.sh scene3 --execute
+python scripts/run_vggt_colmap.py \
+  --scene_dir data/scene3_quality_24 \
+  --max_images 24 \
+  --use_ba \
+  --skip_builtin_ba \
+  --shared_camera \
+  --run_self_ba \
+  --self_ba_output_name sparse_self_ba_intrinsics_pruned \
+  --self_ba_max_points 12000 \
+  --self_ba_max_nfev 120 \
+  --self_ba_max_initial_reproj_error_px 64 \
+  --self_ba_prune_reproj_error_px 12 \
+  --self_ba_optimize_shared_intrinsics
 ```
 
-This compares `fixed_interval_24`, `uniform_24`, `quality_24`, `quality_48`,
-and `quality_96`. The wrapper uses VGGT's BA track-building path, skips the
-final pycolmap BA, then runs the project self-implemented BA and writes sparse
-metrics from `sparse_self_ba_intrinsics_pruned/` to
-`outputs/tables/scene3_vggt_ablation.csv`.
+## Optional 3DGS
 
-For both tracks, compare the sparse and BA-level metrics first:
+Prepare Nerfstudio data:
 
 ```bash
-python scripts/check_sparse.py data/human1_vggt_mask_blur_q16/sparse
-python scripts/eval_sparse_mask_consistency.py \
-  --sparse_dir data/human1_vggt_mask_blur_q16/sparse \
-  --image_dir data/human1_vggt_mask_blur_q16/images \
+python scripts/06_prepare_nerfstudio_data.py \
+  --image_dir data/human1/images \
   --mask_dir data/human1/masks \
-  --csv outputs/tables/human_vggt_mask_consistency.csv \
-  --append_csv
+  --sparse_dir data/human1_vggt_self_ba/sparse_self_ba \
+  --output_dir data/human1_ns \
+  --make_images_2 \
+  --apply_masks_to_images \
+  --background_color 0,0,0 \
+  --overwrite
 ```
 
-Only run 3DGS for the best sparse configuration from each track.
-
-## 5. Scene3 3DGS Camera Replay
-
-After training scene3 with `scripts/07_train_splatfacto.sh`, replay the trained
-Gaussian model from the same sampled camera poses that entered VGGT/3DGS:
+Train and export:
 
 ```bash
-python scripts/render_scene3_camera_replay.py \
-  --sparse_dir data/scene3_quality_24/sparse_self_ba_intrinsics_pruned \
-  --dataparser_transforms report/artifacts/scene3_self_ba_intrinsics_pruned_24/dataparser_transforms.json \
-  --camera_path outputs/scene3_camera_replay/camera_path.json
+bash scripts/07_train_splatfacto.sh --data data/human1_ns --experiment-name human1 --max-num-iterations 30000
+bash scripts/08_export_splat.sh --search-dir outputs/3dgs/human1 --output gs_batch/human1
 ```
 
-Render the replay video in the nerfstudio environment:
+## Repository Layout
 
-```bash
-python scripts/render_scene3_camera_replay.py \
-  --sparse_dir data/scene3_quality_24/sparse_self_ba_intrinsics_pruned \
-  --dataparser_transforms report/artifacts/scene3_self_ba_intrinsics_pruned_24/dataparser_transforms.json \
-  --config report/artifacts/scene3_self_ba_intrinsics_pruned_24/config.yml \
-  --camera_path outputs/scene3_camera_replay/camera_path.json \
-  --output_video outputs/scene3_camera_replay/replay.mp4 \
-  --fps 12 \
-  --render
+```text
+scripts/          Project pipeline scripts
+vggt/             VGGT upstream submodule
+requirements.txt  Python dependencies for project scripts
+data/             Local/generated data, ignored except data/README.md
+outputs/          Local experiment outputs, ignored
+report/           Local report artifacts, ignored
+gs_batch/         Local exported Gaussian splats, ignored
 ```
-
-The resulting `replay.mp4` follows the original sampled frame order, so it can
-be compared directly with the source video or the selected keyframes.
